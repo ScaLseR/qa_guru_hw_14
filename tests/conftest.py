@@ -1,10 +1,18 @@
 """фикстуры используемые для тестирования формы
 https://demoqa.com/automation-practice-form"""
+import os
+
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selene import browser
 from utils import attach
+from dotenv import load_dotenv
+
+
+@pytest.fixture(scope='session', autouse=True)
+def load_env():
+    load_dotenv()
 
 
 @pytest.fixture(scope='function')
@@ -19,7 +27,12 @@ def setup_browser(request):
         }
     }
     options.capabilities.update(selenoid_capabilities)
-    driver = webdriver.Remote(command_executor=f"https://user1:1234@selenoid.autotests.cloud/wd/hub", options=options)
+
+    login = os.getenv('LOGIN')
+    password = os.getenv('PASSWORD')
+    browser_url = os.getenv('BROWSER_URL')
+
+    driver = webdriver.Remote(command_executor=f"https://{login}:{password}@{browser_url}", options=options)
     browser.config.base_url = "https://demoqa.com"
     browser.config.driver = driver
     browser.config.timeout = 2.0
